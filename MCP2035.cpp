@@ -90,7 +90,7 @@ void MCP2035::setOutputEnableLowTime(uint8_t timeSetting)
 
 uint8_t MCP2035::checkAlert()
 {
-	uint8_t alertStatus;
+	uint8_t alertStatus = 0;
 	return alertStatus;
 }
 
@@ -142,37 +142,37 @@ void MCP2035::setMinimumModulationDepth(uint8_t depth)
 
 uint16_t MCP2035::checkColumnParityRegister()
 {
-	uint16_t columnParityStatus;
+	uint16_t columnParityStatus = 0;
 	return columnParityStatus;
 }
 
 uint8_t MCP2035::isInputChannelActive()
 {
-	uint8_t inputChannelStatus;
+	uint8_t inputChannelStatus = 0;
 	return inputChannelStatus;
 }
 
 uint8_t MCP2035::isAGCActive()
 {
-	uint8_t AGCChannelStatus;
+	uint8_t AGCChannelStatus = 0;
 	return AGCChannelStatus;
 }
 
 uint8_t MCP2035::didInputCauseWakeUp()
 {
-	uint8_t didInputCauseWakeup;
+	uint8_t didInputCauseWakeup = 0;
 	return didInputCauseWakeup;
 }
 
 uint8_t MCP2035::checkAlarmTimeout()
 {
-	uint8_t alarmTimeoutStatus;
+	uint8_t alarmTimeoutStatus = 0;
 	return alarmTimeoutStatus;
 }
 
 uint8_t MCP2035::checkParity()
 {
-	uint8_t parityStatus;
+	uint8_t parityStatus = 0;
 	return parityStatus;
 }
 
@@ -191,7 +191,7 @@ uint8_t MCP2035::readRegister(uint8_t addressToRead)
 //See MCP2035 data sheet page 49, note 2 
 uint8_t MCP2035::computeRowParity(uint8_t data)
 {
-	uint8_t parityBit;
+	uint8_t parityBit = 0;
 	return parityBit;
 }
 

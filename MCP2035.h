@@ -207,6 +207,7 @@ public:
 
 
 private:
+	void sendCommand(uint8_t command);
 	void writeRegister(uint8_t addressToWrite, uint16_t data);
 	uint8_t readRegister(uint8_t addressToRead);
 	uint8_t computeRowParity(uint8_t data);
