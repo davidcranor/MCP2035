@@ -168,50 +168,50 @@ cranor@mit.edu
 #define NO_PARITY_ERROR 0b0
 
 class MCP2035 {
-	
-	HardwareSPI* spiPort;
-	
+    
+    HardwareSPI* spiPort;
+    
 public:
 
     MCP2035();
-	void begin(HardwareSPI* port);
-	void setup();	
+    void begin(HardwareSPI* port);
+    void setup();   
 
-	void enableModulationClamp();
-	void disableModulationClamp();
-	void goToSleep();
-	void AGCPreserveEnable();
-	void softReset();
-	
-	void setOutputEnableHighTime(uint8_t timeSetting);
-	void setOutputEnableLowTime(uint8_t timeSetting);
-	uint8_t checkAlert();
-	void setInputChannelStatus(uint8_t status);
-	
-	void setLFDATAOutputType(uint8_t type);
-	void setTuningCap(uint8_t valueInPicoFarads);
-	void setRSSIMosfetStatus(uint8_t status);
-	void setCarrierClockDivide(uint8_t setting);
-	
-	void setSensitivityReduction(uint8_t setting);
-	
-	void setDemodulatorOutput(uint8_t status);
-	void setMinimumModulationDepth(uint8_t depth);
-	uint16_t checkColumnParityRegister();
-	
-	uint8_t isInputChannelActive();
-	uint8_t isAGCActive();
-	uint8_t didInputCauseWakeUp();
-	uint8_t checkAlarmTimeout();
-	uint8_t checkParity();
+    void enableModulationClamp();
+    void disableModulationClamp();
+    void goToSleep();
+    void AGCPreserveEnable();
+    void softReset();
+    
+    void setOutputEnableHighTime(uint8_t timeSetting);
+    void setOutputEnableLowTime(uint8_t timeSetting);
+    uint8_t checkAlert();
+    void setInputChannelStatus(uint8_t status);
+    
+    void setLFDATAOutputType(uint8_t type);
+    void setTuningCap(uint8_t valueInPicoFarads);
+    void setRSSIMosfetStatus(uint8_t status);
+    void setCarrierClockDivide(uint8_t setting);
+    
+    void setSensitivityReduction(uint8_t setting);
+    
+    void setDemodulatorOutput(uint8_t status);
+    void setMinimumModulationDepth(uint8_t depth);
+    uint16_t checkColumnParityRegister();
+    
+    uint8_t isInputChannelActive();
+    uint8_t isAGCActive();
+    uint8_t didInputCauseWakeUp();
+    uint8_t checkAlarmTimeout();
+    uint8_t checkParity();
 
 
 private:
-	void sendCommand(uint8_t command);
-	void writeRegister(uint8_t addressToWrite, uint16_t data);
-	uint8_t readRegister(uint8_t addressToRead);
-	uint8_t computeRowParity(uint8_t data);
-	void updateColumnParity();
+    void sendCommand(uint8_t command);
+    void writeRegister(uint8_t addressToWrite, uint16_t data);
+    uint8_t readRegister(uint8_t addressToRead);
+    uint8_t computeRowParity(uint8_t data);
+    void updateColumnParity();
 
 };
 
