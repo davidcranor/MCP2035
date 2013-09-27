@@ -36,6 +36,10 @@ cranor@mit.edu
 #include <wirish/wirish.h>
 #include <stdint.h>
 
+#define DEBUG 0
+
+#define SPI_DELAY 1
+
 //SPI Commands
 //See MCP2035 datahseet, page 47
 #define MODULATION_CLAMP_ENABLE 0b000
@@ -143,7 +147,7 @@ cranor@mit.edu
 //See MCP2035 datahseet, page 55
 
 //Address
-#define COLUMN_PARITY_BIT_REGISTER 0b0110
+#define COLUMN_PARITY_REGISTER 0b0110
 
 //Status Register 7 - ALL OF THESE ARE READ ONLY
 //See MCP2035 datahseet, page 56
@@ -169,12 +173,18 @@ cranor@mit.edu
 
 class MCP2035 {
     
-    HardwareSPI* spiPort;
+    //HardwareSPI* spiPort;
+    uint8_t ioPin;
+    uint8_t clkPin;
+    uint8_t csPin;
     
 public:
 
     MCP2035();
-    void begin(HardwareSPI* port);
+    
+    //Gonna try my own three wire SPI bit-bang implementation
+    void begin(uint8_t io, uint8_t clk, uint8_t cs);
+
     void setup();   
 
     void enableModulationClamp();
@@ -208,9 +218,9 @@ public:
 
 private:
     void sendCommand(uint8_t command);
-    void writeRegister(uint8_t addressToWrite, uint16_t data);
+    void writeRegister(uint8_t addressToWrite, uint8_t data);
     uint8_t readRegister(uint8_t addressToRead);
-    uint8_t computeRowParity(uint8_t data);
+    uint8_t computeRowParity(uint16_t data);
     void updateColumnParity();
 
 };
