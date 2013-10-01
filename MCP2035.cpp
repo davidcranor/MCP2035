@@ -62,188 +62,258 @@ void MCP2035::begin(uint8_t io, uint8_t clk, uint8_t cs)
 
 void MCP2035::setup()
 {
-    //Initial settings from mastery of datasheet.  Some register settings must be enabled from beginning, check register docs.
+    //Make sure part is reset
+    softReset();
+    clearRegisters();
 
-
+    //Write initial settings to registers
+    //See page 57 of datasheet for example settings
     writeRegister(CONFIG_REGISTER_0, 0b10101110);
-    delay(1);
-
-    writeRegister(CONFIG_REGISTER_1, 0b11000001);
-    delay(1);
-
+    writeRegister(CONFIG_REGISTER_1, 0b00000001);
     writeRegister(CONFIG_REGISTER_2, 0b00000000);
-    delay(1);
-
     writeRegister(CONFIG_REGISTER_3, 0b00000000);
-    delay(1);
-
     writeRegister(CONFIG_REGISTER_4, 0b00000000);
-    delay(1);
-
     writeRegister(CONFIG_REGISTER_5, 0b01000000);
-    delay(1);
-
     updateColumnParity();
-    delay(1);
-
-        uint8_t data;
-
-        data = readRegister(CONFIG_REGISTER_0);
-        SerialUSB.println(data, 2);
-
-        data = readRegister(CONFIG_REGISTER_1);
-        SerialUSB.println(data, 2);
-
-        data = readRegister(CONFIG_REGISTER_2);
-        SerialUSB.println(data, 2);
-
-        data = readRegister(CONFIG_REGISTER_3);
-        SerialUSB.println(data, 2);
-
-        data = readRegister(CONFIG_REGISTER_4);
-        SerialUSB.println(data, 2);
-
-        data = readRegister(CONFIG_REGISTER_5);
-        SerialUSB.println(data, 2);
-
-        data = readRegister(COLUMN_PARITY_REGISTER);
-        SerialUSB.println(data, 2);
-
-        SerialUSB.println();
-
-        data = readRegister(STATUS_REGISTER);
-        SerialUSB.println(data, 2);
 
 
-    while(1)
+    // setOutputEnableHighTime(OUTPUT_ENABLE_FILTER_HIGH_2MS);
+    // setOutputEnableLowTime(OUTPUT_ENABLE_FILTER_LOW_2MS);
+    // setAlertTrigger(ALERT_TRIGGER_BY_PARITY_ERROR_OR_ALARM_TIMER);
+    // setInputChannel(INPUT_CHANNEL_ENABLE);
+    
+    // setLFDATAOutputType(LFDATA_OUTPUT_DEMODULATED);
+    // setTuningCap(0b1);
+    // setRSSIMosfet(RSSI_PULL_DOWN_OFF);
+    // setCarrierClockDivide(CARRIER_CLOCK_DIVIDE_1);
+    
+    // setSensitivityReduction(INPUT_SENSITIVITY_REDUCTION_0_DB);
+    
+    // setDemodulatorOutput(DEMOD_OUTPUT_AGC_DEPENDENT_ENABLE);
+    // setMinimumModulationDepth(MIN_MOD_DEPTH_33_PCT);
+
+    // updateColumnParity();
+
+
+
+    //Debug Stuff
+    uint8_t data;
+
+    data = readRegister(CONFIG_REGISTER_0);
+    SerialUSB.println(data, 2);
+
+    data = readRegister(CONFIG_REGISTER_1);
+    SerialUSB.println(data, 2);
+
+    data = readRegister(CONFIG_REGISTER_2);
+    SerialUSB.println(data, 2);
+
+    data = readRegister(CONFIG_REGISTER_3);
+    SerialUSB.println(data, 2);
+
+    data = readRegister(CONFIG_REGISTER_4);
+    SerialUSB.println(data, 2);
+
+    data = readRegister(CONFIG_REGISTER_5);
+    SerialUSB.println(data, 2);
+
+    data = readRegister(COLUMN_PARITY_REGISTER);
+    SerialUSB.println(data, 2);
+
+    SerialUSB.println();
+
+    data = readRegister(STATUS_REGISTER);
+    SerialUSB.println(data, 2);
+
+}
+
+void MCP2035::setModulationClamp(uint8_t command)
+{
+    if(command == MODULATION_CLAMP_ENABLE)
     {
-
-        // delay(100);
+        sendCommand(MODULATION_CLAMP_ENABLE); 
+    } else if (command == MODULATION_CLAMP_DISABLE) {
+        sendCommand(MODULATION_CLAMP_DISABLE);
     }
-    
-
-
-
-}
-
-void MCP2035::enableModulationClamp()
-{
-    
-}
-
-void MCP2035::disableModulationClamp()
-{
-    
 }
 
 void MCP2035::goToSleep()
 {
-    
+    sendCommand(GO_TO_SLEEP);
 }
 
-void MCP2035::AGCPreserveEnable()
+void MCP2035::setAGCPreserve(uint8_t command)
 {
-    
+    if(command == AGC_PRESERVE_ENABLE)
+    {
+        sendCommand(AGC_PRESERVE_ENABLE); 
+    } else if (command == AGC_PRESERVE_DISABLE) {
+        sendCommand(AGC_PRESERVE_DISABLE);
+    }
 }
 
 void MCP2035::softReset()
 {
-    
+    sendCommand(SOFT_RESET);
 }
 
 void MCP2035::setOutputEnableHighTime(uint8_t timeSetting)
 {
-    
+    uint8_t currentRegisterSetting;
+    uint8_t newRegisterSetting;
+
+    currentRegisterSetting = readRegister(CONFIG_REGISTER_0);
+
+    newRegisterSetting = currentRegisterSetting & (timeSetting << OUTPUT_ENABLE_FILTER_HIGH_BITS_OFFSET);
+
+    writeRegister(CONFIG_REGISTER_0, newRegisterSetting);
 }
 
 void MCP2035::setOutputEnableLowTime(uint8_t timeSetting)
 {
-    
+    uint8_t currentRegisterSetting;
+    uint8_t newRegisterSetting;
+
+    currentRegisterSetting = readRegister(CONFIG_REGISTER_0);
+
+    newRegisterSetting = currentRegisterSetting & (timeSetting << OUTPUT_ENABLE_FILTER_LOW_BITS_OFFSET);
+
+    writeRegister(CONFIG_REGISTER_0, newRegisterSetting);  
 }
 
-uint8_t MCP2035::checkAlert()
+void MCP2035::setAlertTrigger(uint8_t setting)
 {
-    uint8_t alertStatus = 0;
-    return alertStatus;
+    uint8_t currentRegisterSetting;
+    uint8_t newRegisterSetting;
+
+    currentRegisterSetting = readRegister(CONFIG_REGISTER_0);
+
+    newRegisterSetting = currentRegisterSetting & (setting << ALERT_TRIGGER_BITS_OFFSET);
+
+    writeRegister(CONFIG_REGISTER_0, newRegisterSetting);
 }
 
-void MCP2035::setInputChannelStatus(uint8_t status)
+void MCP2035::setInputChannel(uint8_t status)
 {
-    
+    uint8_t currentRegisterSetting;
+    uint8_t newRegisterSetting;
+
+    currentRegisterSetting = readRegister(CONFIG_REGISTER_0);
+
+    newRegisterSetting = currentRegisterSetting & (status << INPUT_CHANNEL_SETTING_BITS_OFFSET);
+
+    writeRegister(CONFIG_REGISTER_0, newRegisterSetting);
 }
 
 void MCP2035::setLFDATAOutputType(uint8_t type)
 {
-    
+    uint8_t currentRegisterSetting;
+    uint8_t newRegisterSetting;
+
+    currentRegisterSetting = readRegister(CONFIG_REGISTER_1);
+
+    newRegisterSetting = currentRegisterSetting & (type << LFDATA_OUTPUT_BITS_OFFSET);
+
+    writeRegister(CONFIG_REGISTER_1, newRegisterSetting);
 }
 
 void MCP2035::setTuningCap(uint8_t valueInPicoFarads)
 {
-    //Needs to:
-    //read register that contains this setting
-    //compute new register byte that includes desired setting
-    //recompute row parity bit
-    //re-write the entire register, including row parity bit
-    //adjust column parity register accordingly
-    //check to make sure that there aren't any parity errors
+    uint8_t currentRegisterSetting;
+    uint8_t newRegisterSetting;
+
+    currentRegisterSetting = readRegister(CONFIG_REGISTER_1);
+
+    newRegisterSetting = currentRegisterSetting & (valueInPicoFarads << TUNING_CAP_BITS_OFFSET);
+
+    writeRegister(CONFIG_REGISTER_1, newRegisterSetting);
 }
 
-void MCP2035::setRSSIMosfetStatus(uint8_t status)
+void MCP2035::setRSSIMosfet(uint8_t status)
 {
-    
+    uint8_t currentRegisterSetting;
+    uint8_t newRegisterSetting;
+
+    currentRegisterSetting = readRegister(CONFIG_REGISTER_2);
+
+    newRegisterSetting = currentRegisterSetting & (status << RSSI_PULL_DOWN_SETTING_OFFSET);
+
+    writeRegister(CONFIG_REGISTER_2, newRegisterSetting);
 }
 
 void MCP2035::setCarrierClockDivide(uint8_t setting)
 {
-    
+    uint8_t currentRegisterSetting;
+    uint8_t newRegisterSetting;
+
+    currentRegisterSetting = readRegister(CONFIG_REGISTER_2);
+
+    newRegisterSetting = currentRegisterSetting & (setting << CARRIER_CLOCK_DIVIDE_BITS_OFFSET);
+
+    writeRegister(CONFIG_REGISTER_2, newRegisterSetting);
 }
 
 void MCP2035::setSensitivityReduction(uint8_t setting)
 {
-    
+    uint8_t currentRegisterSetting;
+    uint8_t newRegisterSetting;
+
+    currentRegisterSetting = readRegister(CONFIG_REGISTER_4);
+
+    newRegisterSetting = currentRegisterSetting & (setting << INPUT_SENSITIVITY_REDUCTION_BITS_OFFSET);
+
+    writeRegister(CONFIG_REGISTER_4, newRegisterSetting);
 }
 
 void MCP2035::setDemodulatorOutput(uint8_t status)
 {
-    
+    uint8_t currentRegisterSetting;
+    uint8_t newRegisterSetting;
+
+    currentRegisterSetting = readRegister(CONFIG_REGISTER_5);
+
+    newRegisterSetting = currentRegisterSetting & (status << DEMOD_OUTPUT_AGC_DEPENDENT_BITS_OFFSET);
+
+    writeRegister(CONFIG_REGISTER_5, newRegisterSetting);
 }
 
 void MCP2035::setMinimumModulationDepth(uint8_t depth)
 {
-    
+    uint8_t currentRegisterSetting;
+    uint8_t newRegisterSetting;
+
+    currentRegisterSetting = readRegister(CONFIG_REGISTER_5);
+
+    newRegisterSetting = currentRegisterSetting & (depth << MIN_MODE_DEPTH_BITS_OFFSET);
+
+    writeRegister(CONFIG_REGISTER_5, newRegisterSetting);
 }
 
-uint16_t MCP2035::checkColumnParityRegister()
-{
-    uint16_t columnParityStatus = 0;
-    return columnParityStatus;
-}
-
-uint8_t MCP2035::isInputChannelActive()
+uint8_t MCP2035::inputChannelStatus()
 {
     uint8_t inputChannelStatus = 0;
     return inputChannelStatus;
 }
 
-uint8_t MCP2035::isAGCActive()
+uint8_t MCP2035::AGCStatus()
 {
     uint8_t AGCChannelStatus = 0;
     return AGCChannelStatus;
 }
 
-uint8_t MCP2035::didInputCauseWakeUp()
+uint8_t MCP2035::inputWakeUpStatus()
 {
     uint8_t didInputCauseWakeup = 0;
     return didInputCauseWakeup;
 }
 
-uint8_t MCP2035::checkAlarmTimeout()
+uint8_t MCP2035::alarmTimeoutStatus()
 {
     uint8_t alarmTimeoutStatus = 0;
     return alarmTimeoutStatus;
 }
 
-uint8_t MCP2035::checkParity()
+uint8_t MCP2035::parityStatus()
 {
     uint8_t parityStatus = 0;
     return parityStatus;
@@ -268,7 +338,6 @@ void MCP2035::sendCommand(uint8_t command)
     for(uint8_t i = 3; i > 0; i--)
     {
         //Write the bit
-        //if( command >> (i - 1) & 0x01) == 1)
         if( ((command >> (i - 1)) & 0x01 ) == 1)
         {
             digitalWrite(ioPin, HIGH); 
@@ -500,12 +569,6 @@ uint8_t MCP2035::readRegister(uint8_t addressToRead)
         delayMicroseconds(SPI_DELAY);
     }
 
-    if(DEBUG == 1)
-    {
-        SerialUSB.print("Received Packet: ");
-        SerialUSB.println(receivedPacket, 2); 
-    }
-
     //Raise !CS to complete read
     digitalWrite(csPin, HIGH);
 
@@ -516,30 +579,41 @@ uint8_t MCP2035::readRegister(uint8_t addressToRead)
     //Parse the received packet
     parityBit = receivedPacket & 1;
 
-    if(DEBUG == 1)
+    //Status Register doesn't have its own parity...chopping its first bit since it is don't care anyway
+    if(addressToRead == STATUS_REGISTER)
     {
-        SerialUSB.print("Parity bit: ");
-        SerialUSB.println(parityBit, 2);
-    }
-
-
-    for(uint8_t i = 1; i < 9; i++)
-    {
-        if( (receivedPacket >> i) & 1)
+        for(uint8_t i = 0; i < 8; i++)
         {
-           data = data | (1 << (i -1) ); 
-        }
+            if( (receivedPacket >> i) & 1)
+            {
+               data = data | (1 << i); 
+            }
         
-    }
+        }
 
-    if(DEBUG == 1)
-    {
-        SerialUSB.print("Data: ");
-        SerialUSB.println(data, 2);
-        SerialUSB.println();
+    } else {
+
+
+
+        for(uint8_t i = 1; i < 9; i++)
+        {
+            if( (receivedPacket >> i) & 1)
+            {
+               data = data | (1 << (i -1) ); 
+            }
+        
+        }
+
     }
 
     //Return the data (or parity error)
+
+    //Status Register doesn't have its own parity...chopping its first bit since it is don't care anyway
+    if(addressToRead == STATUS_REGISTER)
+    {
+        return data;
+    }
+
     if(parityBit == computeRowParity(data))
     {
         return data;
@@ -596,9 +670,6 @@ void MCP2035::updateColumnParity()
         //Convert column parity array back into an 8-bit number
         for(uint8_t i = 8; i > 0; i--)
         {
-            //SerialUSB.print(columnParaties[i-1]);
-            //SerialUSB.print( (columnParaties[i-1] << i) & 1);
-
             if( columnParaties[i-1] == 1)
             {
                 columnParityRegister = columnParityRegister | (1 << (i - 1));
@@ -606,10 +677,18 @@ void MCP2035::updateColumnParity()
              
         }
 
-        // SerialUSB.println();
-        // SerialUSB.println(columnParityRegister, 2);
-
         //Write column parity register
         writeRegister(COLUMN_PARITY_REGISTER, columnParityRegister);
+}
+
+void MCP2035::clearRegisters()
+{
+    writeRegister(CONFIG_REGISTER_0, 0b00000000);
+    writeRegister(CONFIG_REGISTER_1, 0b00000000);
+    writeRegister(CONFIG_REGISTER_2, 0b00000000);
+    writeRegister(CONFIG_REGISTER_3, 0b00000000);
+    writeRegister(CONFIG_REGISTER_4, 0b00000000);
+    writeRegister(CONFIG_REGISTER_5, 0b00000000);
+    updateColumnParity();
 }
 

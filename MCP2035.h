@@ -62,17 +62,21 @@ cranor@mit.edu
 #define OUTPUT_ENABLE_FILTER_HIGH_1MS 0b01
 #define OUTPUT_ENABLE_FILTER_HIGH_2MS 0b10
 #define OUTPUT_ENABLE_FILTER_HIGH_4MS 0b11
+#define OUTPUT_ENABLE_FILTER_HIGH_BITS_OFFSET 6
 
 #define OUTPUT_ENABLE_FILTER_LOW_DISABLED 0b00
 #define OUTPUT_ENABLE_FILTER_LOW_1MS 0b01
 #define OUTPUT_ENABLE_FILTER_LOW_2MS 0b10
 #define OUTPUT_ENABLE_FILTER_LOW_4MS 0b11
+#define OUTPUT_ENABLE_FILTER_LOW_BITS_OFFSET 4
 
-#define ALERT_TRIGGERED_BY_PARITY_ERROR_OR_ALARM_TIMER 0b1
-#define ALERT_TRIGGERED_BY_PARITY_ERROR 0b0
+#define ALERT_TRIGGER_BY_PARITY_ERROR_OR_ALARM_TIMER 0b1
+#define ALERT_TRIGGER_BY_PARITY_ERROR 0b0
+#define ALERT_TRIGGER_BITS_OFFSET 3
 
 #define INPUT_CHANNEL_DISABLE 0b1
 #define INPUT_CHANNEL_ENABLE 0b0
+#define INPUT_CHANNEL_SETTING_BITS_OFFSET 0
 
 //Config Register 1
 //See MCP2035 datahseet, page 51
@@ -84,6 +88,9 @@ cranor@mit.edu
 #define LFDATA_OUTPUT_DEMODULATED 0b00
 #define LFDATA_OUTPUT_CARRIER 0b01
 #define LFDATA_OUTPUT_RSSI 0b10
+#define LFDATA_OUTPUT_BITS_OFFSET 6
+
+#define TUNING_CAP_BITS_OFFSET 0
 
 //Config Register 2
 //See MCP2035 datahseet, page 51
@@ -94,9 +101,11 @@ cranor@mit.edu
 //Settings
 #define RSSI_PULL_DOWN_ON 0b1
 #define RSSI_PULL_DOWN_OFF 0b0
+#define RSSI_PULL_DOWN_SETTING_OFFSET 7
 
 #define CARRIER_CLOCK_DIVIDE_4 0b1
 #define CARRIER_CLOCK_DIVIDE_1 0b0
+#define CARRIER_CLOCK_DIVIDE_BITS_OFFSET 6
 
 //Config Register 3 
 //See MCP2035 datahseet, page 52
@@ -127,6 +136,7 @@ cranor@mit.edu
 #define INPUT_SENSITIVITY_REDUCTION_26_DB 0b1101
 #define INPUT_SENSITIVITY_REDUCTION_28_DB 0b1110
 #define INPUT_SENSITIVITY_REDUCTION_30_DB 0b1111
+#define INPUT_SENSITIVITY_REDUCTION_BITS_OFFSET 4
 
 //Config Register 5
 //See MCP2035 datahseet, page 54
@@ -137,11 +147,13 @@ cranor@mit.edu
 //Settings
 #define DEMOD_OUTPUT_AGC_DEPENDENT_ENABLE 0b1
 #define DEMOD_OUTPUT_AGC_DEPENDENT_DISABLE 0b0
+#define DEMOD_OUTPUT_AGC_DEPENDENT_BITS_OFFSET 6
 
 #define MIN_MOD_DEPTH_33_PCT 0b00
 #define MIN_MOD_DEPTH_60_PCT 0b01
 #define MIN_MOD_DEPTH_14_PCT 0b10
 #define MIN_MOD_DEPTH_8_PCT 0b11
+#define MIN_MODE_DEPTH_BITS_OFFSET 4
 
 //Column Parity Bit Register 6
 //See MCP2035 datahseet, page 55
@@ -158,22 +170,26 @@ cranor@mit.edu
 //Settings
 #define INPUT_CHANELL_ACTIVE 0b1
 #define INPUT_CHANNEL_INACTIVE 0b0
+#define INPUT_CHANNEL_STATUS_BITS_OFFSET 6
 
 #define AGC_ACTIVE 0b1
 #define AGC_INACTIVE 0b0
+#define AGC_STATUS_BITS_OFFSET 5
 
 #define INPUT_CHANNEL_CAUSED_WAKEUP 0b1
 #define INPUT_CHANNEL_NO_WAKEUP 0b0
+#define INPUT_CHANNEL_WAKEUP_STATUS_BITS_OFFSET 2
 
 #define ALARM_TIME_OUT 0b1
 #define NO_ALARM_TIME_OUT 0b0
+#define ALARM_TIME_OUT_BITS_OFFSET 1
 
 #define PARITY_ERROR 0b1
 #define NO_PARITY_ERROR 0b0
+#define PARITY_ERROR_STATUS_BITS_OFFSET 0
 
 class MCP2035 {
     
-    //HardwareSPI* spiPort;
     uint8_t ioPin;
     uint8_t clkPin;
     uint8_t csPin;
@@ -187,33 +203,32 @@ public:
 
     void setup();   
 
-    void enableModulationClamp();
-    void disableModulationClamp();
+    void setModulationClamp(uint8_t command);
     void goToSleep();
-    void AGCPreserveEnable();
+    void setAGCPreserve(uint8_t command);
     void softReset();
     
+    //TODO:  None of the below commands actually work.  Fix them.
     void setOutputEnableHighTime(uint8_t timeSetting);
     void setOutputEnableLowTime(uint8_t timeSetting);
-    uint8_t checkAlert();
-    void setInputChannelStatus(uint8_t status);
+    void setAlertTrigger(uint8_t setting);
+    void setInputChannel(uint8_t status);
     
     void setLFDATAOutputType(uint8_t type);
     void setTuningCap(uint8_t valueInPicoFarads);
-    void setRSSIMosfetStatus(uint8_t status);
+    void setRSSIMosfet(uint8_t status);
     void setCarrierClockDivide(uint8_t setting);
     
     void setSensitivityReduction(uint8_t setting);
     
     void setDemodulatorOutput(uint8_t status);
     void setMinimumModulationDepth(uint8_t depth);
-    uint16_t checkColumnParityRegister();
     
-    uint8_t isInputChannelActive();
-    uint8_t isAGCActive();
-    uint8_t didInputCauseWakeUp();
-    uint8_t checkAlarmTimeout();
-    uint8_t checkParity();
+    uint8_t inputChannelStatus();
+    uint8_t AGCStatus();
+    uint8_t inputWakeUpStatus();
+    uint8_t alarmTimeoutStatus();
+    uint8_t parityStatus();
 
 
 private:
@@ -222,6 +237,7 @@ private:
     uint8_t readRegister(uint8_t addressToRead);
     uint8_t computeRowParity(uint16_t data);
     void updateColumnParity();
+    void clearRegisters(); 
 
 };
 
