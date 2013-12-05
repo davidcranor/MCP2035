@@ -68,62 +68,72 @@ void MCP2035::setup()
 
     //Write initial settings to registers
     //See page 57 of datasheet for example settings
-    writeRegister(CONFIG_REGISTER_0, 0b10101110);
-    writeRegister(CONFIG_REGISTER_1, 0b00000001);
-    writeRegister(CONFIG_REGISTER_2, 0b00000000);
-    writeRegister(CONFIG_REGISTER_3, 0b00000000);
-    writeRegister(CONFIG_REGISTER_4, 0b00000000);
-    writeRegister(CONFIG_REGISTER_5, 0b01000000);
-    updateColumnParity();
-
-
-    // setOutputEnableHighTime(OUTPUT_ENABLE_FILTER_HIGH_2MS);
-    // setOutputEnableLowTime(OUTPUT_ENABLE_FILTER_LOW_2MS);
-    // setAlertTrigger(ALERT_TRIGGER_BY_PARITY_ERROR_OR_ALARM_TIMER);
-    // setInputChannel(INPUT_CHANNEL_ENABLE);
-    
-    // setLFDATAOutputType(LFDATA_OUTPUT_DEMODULATED);
-    // setTuningCap(0b1);
-    // setRSSIMosfet(RSSI_PULL_DOWN_OFF);
-    // setCarrierClockDivide(CARRIER_CLOCK_DIVIDE_1);
-    
-    // setSensitivityReduction(INPUT_SENSITIVITY_REDUCTION_0_DB);
-    
-    // setDemodulatorOutput(DEMOD_OUTPUT_AGC_DEPENDENT_ENABLE);
-    // setMinimumModulationDepth(MIN_MOD_DEPTH_33_PCT);
-
+    // writeRegister(CONFIG_REGISTER_0, 0b10101110);
+    // writeRegister(CONFIG_REGISTER_1, 0b00000001);
+    // writeRegister(CONFIG_REGISTER_2, 0b00000000);
+    // writeRegister(CONFIG_REGISTER_3, 0b00000000);
+    // writeRegister(CONFIG_REGISTER_4, 0b00000000);
+    // writeRegister(CONFIG_REGISTER_5, 0b01000000);
     // updateColumnParity();
 
+    setOutputEnableHighTime(OUTPUT_ENABLE_FILTER_HIGH_4MS);
+    //setOutputEnableHighTime(OUTPUT_ENABLE_FILTER_HIGH_DISABLED);
+    
+    setOutputEnableLowTime(OUTPUT_ENABLE_FILTER_LOW_4MS);
+    
+    setAlertTrigger(ALERT_TRIGGER_BY_PARITY_ERROR_OR_ALARM_TIMER);
+    
+    setInputChannel(INPUT_CHANNEL_ENABLE);
+    
+    setLFDATAOutputType(LFDATA_OUTPUT_DEMODULATED);
+    //setLFDATAOutputType(LFDATA_OUTPUT_CARRIER);
+    //setLFDATAOutputType(LFDATA_OUTPUT_RSSI);
+
+    setTuningCap(0b1);
+    
+    setRSSIMosfet(RSSI_PULL_DOWN_OFF);
+    
+    setCarrierClockDivide(CARRIER_CLOCK_DIVIDE_1);
+    
+    //setSensitivityReduction(INPUT_SENSITIVITY_REDUCTION_30_DB);
+    setSensitivityReduction(INPUT_SENSITIVITY_REDUCTION_0_DB);
+
+    setDemodulatorOutput(DEMOD_OUTPUT_AGC_DEPENDENT_ENABLE);
+    //setDemodulatorOutput(DEMOD_OUTPUT_AGC_DEPENDENT_DISABLE);
+    
+    setMinimumModulationDepth(MIN_MOD_DEPTH_33_PCT);
+    //setMinimumModulationDepth(MIN_MOD_DEPTH_14_PCT);
+
+    updateColumnParity();
+
+    //setAGCPreserve(AGC_PRESERVE_ENABLE);
 
 
     //Debug Stuff
-    uint8_t data;
 
-    data = readRegister(CONFIG_REGISTER_0);
-    SerialUSB.println(data, 2);
+    // uint8_t data;
 
-    data = readRegister(CONFIG_REGISTER_1);
-    SerialUSB.println(data, 2);
+    // data = readRegister(CONFIG_REGISTER_0);
+    // SerialUSB.println(data, 2);
 
-    data = readRegister(CONFIG_REGISTER_2);
-    SerialUSB.println(data, 2);
+    // data = readRegister(CONFIG_REGISTER_1);
+    // SerialUSB.println(data, 2);
 
-    data = readRegister(CONFIG_REGISTER_3);
-    SerialUSB.println(data, 2);
+    // data = readRegister(CONFIG_REGISTER_2);
+    // SerialUSB.println(data, 2);
 
-    data = readRegister(CONFIG_REGISTER_4);
-    SerialUSB.println(data, 2);
+    // data = readRegister(CONFIG_REGISTER_3);
+    // SerialUSB.println(data, 2);
 
-    data = readRegister(CONFIG_REGISTER_5);
-    SerialUSB.println(data, 2);
+    // data = readRegister(CONFIG_REGISTER_4);
+    // SerialUSB.println(data, 2);
 
-    data = readRegister(COLUMN_PARITY_REGISTER);
-    SerialUSB.println(data, 2);
+    // data = readRegister(CONFIG_REGISTER_5);
+    // SerialUSB.println(data, 2);
 
-    SerialUSB.println();
+    // data = readRegister(COLUMN_PARITY_REGISTER);
+    // SerialUSB.println(data, 2);
 
-    data = readRegister(STATUS_REGISTER);
-    SerialUSB.println(data, 2);
 
 }
 
@@ -164,7 +174,23 @@ void MCP2035::setOutputEnableHighTime(uint8_t timeSetting)
 
     currentRegisterSetting = readRegister(CONFIG_REGISTER_0);
 
-    newRegisterSetting = currentRegisterSetting & (timeSetting << OUTPUT_ENABLE_FILTER_HIGH_BITS_OFFSET);
+    // SerialUSB.print("Current Register Setting: ");
+    // SerialUSB.println(currentRegisterSetting, 2);
+    // SerialUSB.println();
+
+    //Clear the bits of interest
+    currentRegisterSetting = currentRegisterSetting & OUTPUT_ENABLE_FILTER_HIGH_BITS_MASK;
+
+    // SerialUSB.print("Cleared Register Setting: ");
+    // SerialUSB.println(currentRegisterSetting, 2);
+    // SerialUSB.println();
+
+    //Write the bits of interest
+    newRegisterSetting = currentRegisterSetting | (timeSetting << OUTPUT_ENABLE_FILTER_HIGH_BITS_OFFSET);
+
+    // SerialUSB.print("New Register Setting: ");
+    // SerialUSB.println(newRegisterSetting, 2);
+    // SerialUSB.println();
 
     writeRegister(CONFIG_REGISTER_0, newRegisterSetting);
 }
@@ -176,7 +202,23 @@ void MCP2035::setOutputEnableLowTime(uint8_t timeSetting)
 
     currentRegisterSetting = readRegister(CONFIG_REGISTER_0);
 
-    newRegisterSetting = currentRegisterSetting & (timeSetting << OUTPUT_ENABLE_FILTER_LOW_BITS_OFFSET);
+    // SerialUSB.print("Current Register Setting: ");
+    // SerialUSB.println(currentRegisterSetting, 2);
+    // SerialUSB.println();
+
+    //Clear the bits of interest
+    currentRegisterSetting = currentRegisterSetting & OUTPUT_ENABLE_FILTER_LOW_BITS_MASK;
+
+    // SerialUSB.print("Cleared Register Setting: ");
+    // SerialUSB.println(currentRegisterSetting, 2);
+    // SerialUSB.println();
+
+    //Write the bits of interest
+    newRegisterSetting = currentRegisterSetting | (timeSetting << OUTPUT_ENABLE_FILTER_LOW_BITS_OFFSET);
+
+    // SerialUSB.print("New Register Setting: ");
+    // SerialUSB.println(newRegisterSetting, 2);
+    // SerialUSB.println();
 
     writeRegister(CONFIG_REGISTER_0, newRegisterSetting);  
 }
@@ -188,7 +230,23 @@ void MCP2035::setAlertTrigger(uint8_t setting)
 
     currentRegisterSetting = readRegister(CONFIG_REGISTER_0);
 
-    newRegisterSetting = currentRegisterSetting & (setting << ALERT_TRIGGER_BITS_OFFSET);
+    // SerialUSB.print("Current Register Setting: ");
+    // SerialUSB.println(currentRegisterSetting, 2);
+    // SerialUSB.println();
+
+    //Clear the bits of interest
+    currentRegisterSetting = currentRegisterSetting & ALERT_TRIGGER_BITS_MASK;
+
+    // SerialUSB.print("Cleared Register Setting: ");
+    // SerialUSB.println(currentRegisterSetting, 2);
+    // SerialUSB.println();
+
+    //Write the bits of interest
+    newRegisterSetting = currentRegisterSetting | (setting << ALERT_TRIGGER_BITS_OFFSET);
+
+    // SerialUSB.print("New Register Setting: ");
+    // SerialUSB.println(newRegisterSetting, 2);
+    // SerialUSB.println();
 
     writeRegister(CONFIG_REGISTER_0, newRegisterSetting);
 }
@@ -200,7 +258,23 @@ void MCP2035::setInputChannel(uint8_t status)
 
     currentRegisterSetting = readRegister(CONFIG_REGISTER_0);
 
-    newRegisterSetting = currentRegisterSetting & (status << INPUT_CHANNEL_SETTING_BITS_OFFSET);
+    // SerialUSB.print("Current Register Setting: ");
+    // SerialUSB.println(currentRegisterSetting, 2);
+    // SerialUSB.println();
+
+    //Clear the bits of interest
+    currentRegisterSetting = currentRegisterSetting & INPUT_CHANNEL_SETTING_BITS_MASK;
+
+    // SerialUSB.print("Cleared Register Setting: ");
+    // SerialUSB.println(currentRegisterSetting, 2);
+    // SerialUSB.println();
+
+    //Write the bits of interest
+    newRegisterSetting = currentRegisterSetting | (status << INPUT_CHANNEL_SETTING_BITS_OFFSET);
+
+    // SerialUSB.print("New Register Setting: ");
+    // SerialUSB.println(newRegisterSetting, 2);
+    // SerialUSB.println();
 
     writeRegister(CONFIG_REGISTER_0, newRegisterSetting);
 }
@@ -212,7 +286,23 @@ void MCP2035::setLFDATAOutputType(uint8_t type)
 
     currentRegisterSetting = readRegister(CONFIG_REGISTER_1);
 
-    newRegisterSetting = currentRegisterSetting & (type << LFDATA_OUTPUT_BITS_OFFSET);
+    // SerialUSB.print("Current Register Setting: ");
+    // SerialUSB.println(currentRegisterSetting, 2);
+    // SerialUSB.println();
+
+    //Clear the bits of interest
+    currentRegisterSetting = currentRegisterSetting & LFDATA_OUTPUT_BITS_MASK;
+
+    // SerialUSB.print("Cleared Register Setting: ");
+    // SerialUSB.println(currentRegisterSetting, 2);
+    // SerialUSB.println();
+
+    //Write the bits of interest
+    newRegisterSetting = currentRegisterSetting | (type << LFDATA_OUTPUT_BITS_OFFSET);
+
+    // SerialUSB.print("New Register Setting: ");
+    // SerialUSB.println(newRegisterSetting, 2);
+    // SerialUSB.println();
 
     writeRegister(CONFIG_REGISTER_1, newRegisterSetting);
 }
@@ -224,7 +314,23 @@ void MCP2035::setTuningCap(uint8_t valueInPicoFarads)
 
     currentRegisterSetting = readRegister(CONFIG_REGISTER_1);
 
-    newRegisterSetting = currentRegisterSetting & (valueInPicoFarads << TUNING_CAP_BITS_OFFSET);
+    // SerialUSB.print("Current Register Setting: ");
+    // SerialUSB.println(currentRegisterSetting, 2);
+    // SerialUSB.println();
+
+    //Clear the bits of interest
+    currentRegisterSetting = currentRegisterSetting & TUNING_CAP_BITS_MASK;
+
+    // SerialUSB.print("Cleared Register Setting: ");
+    // SerialUSB.println(currentRegisterSetting, 2);
+    // SerialUSB.println();
+
+    //Write the bits of interest
+    newRegisterSetting = currentRegisterSetting | (valueInPicoFarads << TUNING_CAP_BITS_OFFSET);
+
+    // SerialUSB.print("New Register Setting: ");
+    // SerialUSB.println(newRegisterSetting, 2);
+    // SerialUSB.println();
 
     writeRegister(CONFIG_REGISTER_1, newRegisterSetting);
 }
@@ -236,7 +342,23 @@ void MCP2035::setRSSIMosfet(uint8_t status)
 
     currentRegisterSetting = readRegister(CONFIG_REGISTER_2);
 
-    newRegisterSetting = currentRegisterSetting & (status << RSSI_PULL_DOWN_SETTING_OFFSET);
+    // SerialUSB.print("Current Register Setting: ");
+    // SerialUSB.println(currentRegisterSetting, 2);
+    // SerialUSB.println();
+
+    //Clear the bits of interest
+    currentRegisterSetting = currentRegisterSetting & RSSI_PULL_DOWN_SETTING_MASK;
+
+    // SerialUSB.print("Cleared Register Setting: ");
+    // SerialUSB.println(currentRegisterSetting, 2);
+    // SerialUSB.println();
+
+    //Write the bits of interest
+    newRegisterSetting = currentRegisterSetting | (status << RSSI_PULL_DOWN_SETTING_OFFSET);
+
+    // SerialUSB.print("New Register Setting: ");
+    // SerialUSB.println(newRegisterSetting, 2);
+    // SerialUSB.println();
 
     writeRegister(CONFIG_REGISTER_2, newRegisterSetting);
 }
@@ -248,7 +370,23 @@ void MCP2035::setCarrierClockDivide(uint8_t setting)
 
     currentRegisterSetting = readRegister(CONFIG_REGISTER_2);
 
-    newRegisterSetting = currentRegisterSetting & (setting << CARRIER_CLOCK_DIVIDE_BITS_OFFSET);
+    // SerialUSB.print("Current Register Setting: ");
+    // SerialUSB.println(currentRegisterSetting, 2);
+    // SerialUSB.println();
+
+    //Clear the bits of interest
+    currentRegisterSetting = currentRegisterSetting & CARRIER_CLOCK_DIVIDE_BITS_MASK;
+
+    // SerialUSB.print("Cleared Register Setting: ");
+    // SerialUSB.println(currentRegisterSetting, 2);
+    // SerialUSB.println();
+
+    //Write the bits of interest
+    newRegisterSetting = currentRegisterSetting | (setting << CARRIER_CLOCK_DIVIDE_BITS_OFFSET);
+
+    // SerialUSB.print("New Register Setting: ");
+    // SerialUSB.println(newRegisterSetting, 2);
+    // SerialUSB.println();
 
     writeRegister(CONFIG_REGISTER_2, newRegisterSetting);
 }
@@ -260,7 +398,23 @@ void MCP2035::setSensitivityReduction(uint8_t setting)
 
     currentRegisterSetting = readRegister(CONFIG_REGISTER_4);
 
-    newRegisterSetting = currentRegisterSetting & (setting << INPUT_SENSITIVITY_REDUCTION_BITS_OFFSET);
+    // SerialUSB.print("Current Register Setting: ");
+    // SerialUSB.println(currentRegisterSetting, 2);
+    // SerialUSB.println();
+
+    //Clear the bits of interest
+    currentRegisterSetting = currentRegisterSetting & INPUT_SENSITIVITY_REDUCTION_BITS_MASK;
+
+    // SerialUSB.print("Cleared Register Setting: ");
+    // SerialUSB.println(currentRegisterSetting, 2);
+    // SerialUSB.println();
+
+    //Write the bits of interest
+    newRegisterSetting = currentRegisterSetting | (setting << INPUT_SENSITIVITY_REDUCTION_BITS_OFFSET);
+
+    // SerialUSB.print("New Register Setting: ");
+    // SerialUSB.println(newRegisterSetting, 2);
+    // SerialUSB.println();
 
     writeRegister(CONFIG_REGISTER_4, newRegisterSetting);
 }
@@ -272,9 +426,28 @@ void MCP2035::setDemodulatorOutput(uint8_t status)
 
     currentRegisterSetting = readRegister(CONFIG_REGISTER_5);
 
-    newRegisterSetting = currentRegisterSetting & (status << DEMOD_OUTPUT_AGC_DEPENDENT_BITS_OFFSET);
+    // SerialUSB.print("Current Register Setting: ");
+    // SerialUSB.println(currentRegisterSetting, 2);
+    // SerialUSB.println();
+
+    //Clear the bits of interest
+    currentRegisterSetting = currentRegisterSetting & DEMOD_OUTPUT_AGC_DEPENDENT_BITS_MASK;
+
+    // SerialUSB.print("Cleared Register Setting: ");
+    // SerialUSB.println(currentRegisterSetting, 2);
+    // SerialUSB.println();
+
+    //Write the bits of interest
+    newRegisterSetting = currentRegisterSetting | (status << DEMOD_OUTPUT_AGC_DEPENDENT_BITS_OFFSET);
+
+    // SerialUSB.print("New Register Setting: ");
+    // SerialUSB.println(newRegisterSetting, 2);
 
     writeRegister(CONFIG_REGISTER_5, newRegisterSetting);
+
+    // SerialUSB.print("Wrote: ");
+    // SerialUSB.println(readRegister(CONFIG_REGISTER_5), 2);
+    // SerialUSB.println();
 }
 
 void MCP2035::setMinimumModulationDepth(uint8_t depth)
@@ -284,39 +457,55 @@ void MCP2035::setMinimumModulationDepth(uint8_t depth)
 
     currentRegisterSetting = readRegister(CONFIG_REGISTER_5);
 
-    newRegisterSetting = currentRegisterSetting & (depth << MIN_MODE_DEPTH_BITS_OFFSET);
+    // SerialUSB.print("Current Register Setting: ");
+    // SerialUSB.println(currentRegisterSetting, 2);
+    // SerialUSB.println();
+
+    //Clear the bits of interest
+    currentRegisterSetting = currentRegisterSetting & MIN_MOD_DEPTH_BITS_MASK;
+
+    // SerialUSB.print("Cleared Register Setting: ");
+    // SerialUSB.println(currentRegisterSetting, 2);
+    // SerialUSB.println();
+
+    //Write the bits of interest
+    newRegisterSetting = currentRegisterSetting | (depth << MIN_MOD_DEPTH_BITS_OFFSET);
+
+    // SerialUSB.print("New Register Setting: ");
+    // SerialUSB.println(newRegisterSetting, 2);
+    // SerialUSB.println();
 
     writeRegister(CONFIG_REGISTER_5, newRegisterSetting);
 }
 
 uint8_t MCP2035::inputChannelStatus()
 {
-    uint8_t inputChannelStatus = 0;
-    return inputChannelStatus;
+    uint8_t inputChannelStatus = (readRegister(STATUS_REGISTER) & (0x1 << INPUT_CHANNEL_STATUS_BITS_OFFSET));
+    return (inputChannelStatus >> INPUT_CHANNEL_STATUS_BITS_OFFSET);
 }
 
 uint8_t MCP2035::AGCStatus()
 {
-    uint8_t AGCChannelStatus = 0;
-    return AGCChannelStatus;
+    uint8_t AGCChannelStatus = (readRegister(STATUS_REGISTER) & (0x1 << AGC_STATUS_BITS_OFFSET));
+    return (AGCChannelStatus >> AGC_STATUS_BITS_OFFSET);
 }
 
 uint8_t MCP2035::inputWakeUpStatus()
 {
-    uint8_t didInputCauseWakeup = 0;
-    return didInputCauseWakeup;
+    uint8_t didInputCauseWakeup = (readRegister(STATUS_REGISTER) & (0x1 << INPUT_CHANNEL_WAKEUP_STATUS_BITS_OFFSET));
+    return (didInputCauseWakeup >> INPUT_CHANNEL_WAKEUP_STATUS_BITS_OFFSET);
 }
 
 uint8_t MCP2035::alarmTimeoutStatus()
 {
-    uint8_t alarmTimeoutStatus = 0;
-    return alarmTimeoutStatus;
+    uint8_t alarmTimeoutStatus = (readRegister(STATUS_REGISTER) & (0x1 << ALARM_TIME_OUT_BITS_OFFSET));
+    return (alarmTimeoutStatus >> ALARM_TIME_OUT_BITS_OFFSET);
 }
 
 uint8_t MCP2035::parityStatus()
 {
-    uint8_t parityStatus = 0;
-    return parityStatus;
+    uint8_t parityStatus = (readRegister(STATUS_REGISTER) & (0x1 << PARITY_ERROR_STATUS_BITS_OFFSET));
+    return (parityStatus >> PARITY_ERROR_STATUS_BITS_OFFSET);
 }
 
 void MCP2035::sendCommand(uint8_t command)
@@ -614,12 +803,15 @@ uint8_t MCP2035::readRegister(uint8_t addressToRead)
         return data;
     }
 
-    if(parityBit == computeRowParity(data))
-    {
-        return data;
-    } else {
-        return -1;
-    }
+    //For debugging my new writes
+    return data;
+
+    // if(parityBit == computeRowParity(data))
+    // {
+    //     return data;
+    // } else {
+    //     return -1;
+    // }
 }
 
 //See MCP2035 data sheet page 49, note 2 

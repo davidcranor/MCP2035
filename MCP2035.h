@@ -63,20 +63,24 @@ cranor@mit.edu
 #define OUTPUT_ENABLE_FILTER_HIGH_2MS 0b10
 #define OUTPUT_ENABLE_FILTER_HIGH_4MS 0b11
 #define OUTPUT_ENABLE_FILTER_HIGH_BITS_OFFSET 6
+#define OUTPUT_ENABLE_FILTER_HIGH_BITS_MASK 0b00111111
 
 #define OUTPUT_ENABLE_FILTER_LOW_DISABLED 0b00
 #define OUTPUT_ENABLE_FILTER_LOW_1MS 0b01
 #define OUTPUT_ENABLE_FILTER_LOW_2MS 0b10
 #define OUTPUT_ENABLE_FILTER_LOW_4MS 0b11
 #define OUTPUT_ENABLE_FILTER_LOW_BITS_OFFSET 4
+#define OUTPUT_ENABLE_FILTER_LOW_BITS_MASK 0b11001111
 
 #define ALERT_TRIGGER_BY_PARITY_ERROR_OR_ALARM_TIMER 0b1
 #define ALERT_TRIGGER_BY_PARITY_ERROR 0b0
 #define ALERT_TRIGGER_BITS_OFFSET 3
+#define ALERT_TRIGGER_BITS_MASK 0b11110111
 
 #define INPUT_CHANNEL_DISABLE 0b1
 #define INPUT_CHANNEL_ENABLE 0b0
 #define INPUT_CHANNEL_SETTING_BITS_OFFSET 0
+#define INPUT_CHANNEL_SETTING_BITS_MASK 0b11111110
 
 //Config Register 1
 //See MCP2035 datahseet, page 51
@@ -89,8 +93,10 @@ cranor@mit.edu
 #define LFDATA_OUTPUT_CARRIER 0b01
 #define LFDATA_OUTPUT_RSSI 0b10
 #define LFDATA_OUTPUT_BITS_OFFSET 6
+#define LFDATA_OUTPUT_BITS_MASK 0b00111111
 
 #define TUNING_CAP_BITS_OFFSET 0
+#define TUNING_CAP_BITS_MASK 0b11000000
 
 //Config Register 2
 //See MCP2035 datahseet, page 51
@@ -102,10 +108,12 @@ cranor@mit.edu
 #define RSSI_PULL_DOWN_ON 0b1
 #define RSSI_PULL_DOWN_OFF 0b0
 #define RSSI_PULL_DOWN_SETTING_OFFSET 7
+#define RSSI_PULL_DOWN_SETTING_MASK 0b01111111
 
 #define CARRIER_CLOCK_DIVIDE_4 0b1
 #define CARRIER_CLOCK_DIVIDE_1 0b0
 #define CARRIER_CLOCK_DIVIDE_BITS_OFFSET 6
+#define CARRIER_CLOCK_DIVIDE_BITS_MASK 0b10111111
 
 //Config Register 3 
 //See MCP2035 datahseet, page 52
@@ -137,6 +145,7 @@ cranor@mit.edu
 #define INPUT_SENSITIVITY_REDUCTION_28_DB 0b1110
 #define INPUT_SENSITIVITY_REDUCTION_30_DB 0b1111
 #define INPUT_SENSITIVITY_REDUCTION_BITS_OFFSET 4
+#define INPUT_SENSITIVITY_REDUCTION_BITS_MASK 0b00001111
 
 //Config Register 5
 //See MCP2035 datahseet, page 54
@@ -148,12 +157,14 @@ cranor@mit.edu
 #define DEMOD_OUTPUT_AGC_DEPENDENT_ENABLE 0b1
 #define DEMOD_OUTPUT_AGC_DEPENDENT_DISABLE 0b0
 #define DEMOD_OUTPUT_AGC_DEPENDENT_BITS_OFFSET 6
+#define DEMOD_OUTPUT_AGC_DEPENDENT_BITS_MASK 0b10111111
 
 #define MIN_MOD_DEPTH_33_PCT 0b00
 #define MIN_MOD_DEPTH_60_PCT 0b01
 #define MIN_MOD_DEPTH_14_PCT 0b10
 #define MIN_MOD_DEPTH_8_PCT 0b11
-#define MIN_MODE_DEPTH_BITS_OFFSET 4
+#define MIN_MOD_DEPTH_BITS_OFFSET 4
+#define MIN_MOD_DEPTH_BITS_MASK 0b11001111
 
 //Column Parity Bit Register 6
 //See MCP2035 datahseet, page 55
@@ -203,12 +214,13 @@ public:
 
     void setup();   
 
+    //Implemented, but not tested thoroughly.
     void setModulationClamp(uint8_t command);
     void goToSleep();
     void setAGCPreserve(uint8_t command);
     void softReset();
     
-    //TODO:  None of the below commands actually work.  Fix them.
+    //Implemented, but not tested thoroughly
     void setOutputEnableHighTime(uint8_t timeSetting);
     void setOutputEnableLowTime(uint8_t timeSetting);
     void setAlertTrigger(uint8_t setting);
@@ -224,6 +236,7 @@ public:
     void setDemodulatorOutput(uint8_t status);
     void setMinimumModulationDepth(uint8_t depth);
     
+    //Implemented, but not tested thoroughly.  Appear to work, though.
     uint8_t inputChannelStatus();
     uint8_t AGCStatus();
     uint8_t inputWakeUpStatus();
