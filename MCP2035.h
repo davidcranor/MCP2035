@@ -62,6 +62,7 @@ cranor@mit.edu
 #define OUTPUT_ENABLE_FILTER_HIGH_1MS 0b01
 #define OUTPUT_ENABLE_FILTER_HIGH_2MS 0b10
 #define OUTPUT_ENABLE_FILTER_HIGH_4MS 0b11
+
 #define OUTPUT_ENABLE_FILTER_HIGH_BITS_OFFSET 6
 #define OUTPUT_ENABLE_FILTER_HIGH_BITS_MASK 0b00111111
 
@@ -69,16 +70,19 @@ cranor@mit.edu
 #define OUTPUT_ENABLE_FILTER_LOW_1MS 0b01
 #define OUTPUT_ENABLE_FILTER_LOW_2MS 0b10
 #define OUTPUT_ENABLE_FILTER_LOW_4MS 0b11
+
 #define OUTPUT_ENABLE_FILTER_LOW_BITS_OFFSET 4
 #define OUTPUT_ENABLE_FILTER_LOW_BITS_MASK 0b11001111
 
 #define ALERT_TRIGGER_BY_PARITY_ERROR_OR_ALARM_TIMER 0b1
 #define ALERT_TRIGGER_BY_PARITY_ERROR 0b0
+
 #define ALERT_TRIGGER_BITS_OFFSET 3
 #define ALERT_TRIGGER_BITS_MASK 0b11110111
 
 #define INPUT_CHANNEL_DISABLE 0b1
 #define INPUT_CHANNEL_ENABLE 0b0
+
 #define INPUT_CHANNEL_SETTING_BITS_OFFSET 0
 #define INPUT_CHANNEL_SETTING_BITS_MASK 0b11111110
 
@@ -235,6 +239,11 @@ public:
     
     void setDemodulatorOutput(uint8_t status);
     void setMinimumModulationDepth(uint8_t depth);
+
+    void updateColumnParity();
+    void clearRegisters();
+
+    uint8_t readRegister(uint8_t addressToRead); 
     
     //Implemented, but not tested thoroughly.  Appear to work, though.
     uint8_t inputChannelStatus();
@@ -247,10 +256,9 @@ public:
 private:
     void sendCommand(uint8_t command);
     void writeRegister(uint8_t addressToWrite, uint8_t data);
-    uint8_t readRegister(uint8_t addressToRead);
+    
     uint8_t computeRowParity(uint16_t data);
-    void updateColumnParity();
-    void clearRegisters(); 
+    
 
 };
 
